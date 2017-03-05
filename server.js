@@ -1,25 +1,21 @@
 const net = require('net');
 
-const host = 'localhost';
-const port = 3000;
-const server = net.createServer((socket) => {
-    let socketAddress = socket.address();
+const host = '192.168.100.9';
+const port = 2000;
+
+const server = net.createServer();
+
+server.listen(port, host, () => console.log(`TCP server is running on ${host}:${port}`));
+
+server.on('connection', (socket) => {
+    console.log(`${socket.remoteAddress}:${socket.remotePort} connected.`);
+
     socket.on('data', (data) => {
-        console.log(`Got a message from ${socketAddress.address}:${socketAddress.port} : ${data}`);
-        socket.write(reverseString(data));
-   });
+        console.log(`Got a message from ${socket.remoteAddress}:${socket.remotePort} : ${data}`);
+        socket.write(data.toString().split(" ").reverse().join(" "));
+    });
 
-   socket.on('close', () => {
-       console.log(`${socketAddress.address}:${socketAddress.port} disconnected.`);
-   });
-
-}).listen(port, host);
-
-function reverseString(data) {
-    let string = data.toString();
-    if (string.split(' ').length === 1) {
-        return string.split("").reverse().join("");
-    } else {
-        return string.split(" ").reverse().join(" ");
-    };
-};
+    socket.on('close', () => {
+        console.log(`${socket.remoteAddress}:${socket.remotePort} disconnected.`);
+    });
+});
